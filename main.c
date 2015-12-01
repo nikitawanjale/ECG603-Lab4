@@ -1,3 +1,7 @@
+/* 
+Lab04_T02 Change the toggle of the GPIO at 50Hz and at 50% duty cycle.
+*/
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "inc/tm4c123gh6pm.h"
@@ -20,7 +24,8 @@ int main(void)
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);
 	TimerConfigure(TIMER0_BASE, TIMER_CFG_PERIODIC);
 
-	ui32Period = (SysCtlClockGet() / 10) / 2;
+	// Divide by the desired frequency (50Hz) and then by 2 since 50% duty cycle is needed
+	ui32Period = (SysCtlClockGet() / 50) / 2;
 	TimerLoadSet(TIMER0_BASE, TIMER_A, ui32Period -1);
 
 	IntEnable(INT_TIMER0A);
@@ -36,11 +41,8 @@ int main(void)
 
 void Timer0IntHandler(void)
 {
-	// Clear the timer interrupt
 	TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 
-	// Read the current state of the GPIO pin and
-	// write back the opposite state
 	if(GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_2))
 	{
 		GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3, 0);
